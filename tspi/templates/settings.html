@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>设置</title>
+</head>
+<body>
+    <h1>设置</h1>
+    <button onclick="location.href='/calib'">校准</button>
+    <br><br>
+    <span id="tbc_status"></span>
+    <button id="tbc_button"></button>
+    <br><br>
+    <span id="lbc_status"></span>
+    <button id="lbc_button"></button>
+    <br><br>
+    <label for="ls_input">久坐提醒时间(分钟):</label>
+    <input type="number" id="ls_input" name="ls_input" min="1" required>
+    <button id="ls_button">提交</button>
+    <br><br>
+    <button onclick="location.href='/main'">返回主页</button>
+    <script>
+        // 整点报时状态
+        fetch('/api/istbc')
+            .then(response => response.json())
+            .then(data => {
+                const tbc_status = document.getElementById('tbc_status');
+                const tbc_button = document.getElementById('tbc_button');
+                if (data.status === 0) {
+                    tbc_status.textContent = '整点报时状态关闭';
+                    tbc_button.textContent = '开启功能';
+                } else {
+                    tbc_status.textContent = '整点报时状态开启';
+                    tbc_button.textContent = '关闭功能';
+                }
+                tbc_button.addEventListener('click', () => {
+                    fetch('/api/change_istbc', { method: 'POST' })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 0) {
+                                tbc_status.textContent = '整点报时状态关闭';
+                                tbc_button.textContent = '开启功能';
+                            } else {
+                                tbc_status.textContent = '整点报时状态开启';
+                                tbc_button.textContent = '关闭功能';
+                            }
+                        });
+                });
+            });
+        // 久坐提醒状态
+        fetch('/api/islbc')
+            .then(response => response.json())
+            .then(data => {
+                const lbc_status = document.getElementById('lbc_status');
+                const lbc_button = document.getElementById('lbc_button');
+                if (data.status === 0) {
+                    lbc_status.textContent = '久坐提醒状态关闭';
+                    lbc_button.textContent = '开启功能';
+                } else {
+                    lbc_status.textContent = '久坐提醒状态开启';
+                    lbc_button.textContent = '关闭功能';
+                }
+                lbc_button.addEventListener('click', () => {
+                    fetch('/api/change_islbc', { method: 'POST' })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 0) {
+                                lbc_status.textContent = '久坐提醒状态关闭';
+                                lbc_button.textContent = '开启功能';
+                            } else {
+                                lbc_status.textContent = '久坐提醒状态开启';
+                                lbc_button.textContent = '关闭功能';
+                            }
+                        });
+                });
+            });
+        // 久坐提醒时间设置
+        const ls_button = document.getElementById('ls_button');
+        ls_button.addEventListener('click', () => {
+            const ls_input = document.getElementById('ls_input');
+            const ls_value = parseInt(ls_input.value);
+            if (ls_value > 0) {
+                fetch('/api/set_ls', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ value: ls_value })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message === 'Success') {
+                        alert('久坐提醒时间设置成功');
+                    } else {
+                        alert('久坐提醒时间设置失败');
+                    }
+                });
+            } else {
+                alert('请输入大于0的整数');
+            }
+        });
+    </script>
+</body>
+</html>

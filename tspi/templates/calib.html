@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>校准</title>
+</head>
+<body>
+    <h1>校准坐姿标准</h1>
+    <img src="{{ url_for('static', filename='wrz.png') }}" alt="标准坐姿">
+    <p>请按照标准坐姿坐,按下校准按钮后保持20-30秒</p>
+    <button id="calib_button">校准</button>
+    <button onclick="location.href='/main'">返回主页</button>
+    <script>
+        const calib_button = document.getElementById('calib_button');
+        calib_button.addEventListener('click', () => {
+            fetch('/api/calib', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message === 'Success') {
+                        alert('请等待语音提示');
+                        location.href = '/main';
+                    } else {
+                        alert('校准失败');
+                    }
+                });
+        });
+    </script>
+</body>
+</html>

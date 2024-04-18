@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>历史数据</title>
+</head>
+<body>
+    <h1>历史数据</h1>
+    <ul id="historystat"></ul>
+    <button onclick="location.href='/main'">返回主页</button>
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            fetch('/api/get_historystat')
+                .then(response => response.json())
+                .then(data => {
+                    const historystat = document.getElementById('historystat');
+                    data.forEach(item => {
+                        const li = document.createElement('li');
+                        const date1 = new Date(item[1] * 1000);
+                        const date2 = new Date(item[2] * 1000);
+                        const typs = ['正常', '低头', '歪头', '趴桌', '脖子前伸', '身体下沉', '驼背写字']
+                        li.textContent = `类型: ${typs[item[0]]}, 开始时间: ${date1.toLocaleString()}, 结束时间: ${date1.toLocaleString()}`;
+                        historystat.appendChild(li);
+                    });
+                });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>坐姿监视器</title>
+</head>
+<body>
+    <h1>欢迎使用坐姿监视器</h1>
+    <div id="greeting"></div>
+    <img id="af" src="" alt="Greeting Chart" />
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            fetch('/api/get_greeting')
+                .then(response => response.text())
+                .then(data => document.getElementById('greeting').textContent = data);
+            document.getElementById('af').src = '/api/get_af';
+        });
+    </script>
+    <h1>今日坐姿数据统计</h1>
+    <img id="greetchart" src="" alt="Greeting Chart" />
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            fetch('/api/get_greeting')
+                .then(response => response.text())
+                .then(data => document.getElementById('greeting').textContent = data);
+            document.getElementById('greetchart').src = '/api/get_greetchart';
+        });
+    </script>
+    <h1>最近违规情况</h1>
+    <ul id="recentstat"></ul>
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            fetch('/api/get_recentstat')
+                .then(response => response.json())
+                .then(data => {
+                    const recentstat = document.getElementById('recentstat');
+                    data.forEach(item => {
+                        const li = document.createElement('li');
+                        const date1 = new Date(item[1] * 1000);
+                        const date2 = new Date(item[2] * 1000);
+                        const typs = ['正常', '低头', '歪头', '趴桌', '脖子前伸', '身体下沉', '驼背写字']
+                        li.textContent = `类型: ${typs[item[0]]}, 开始时间: ${date1.toLocaleString()}, 结束时间: ${date1.toLocaleString()}`;
+                        recentstat.appendChild(li);
+                    });
+                });
+        });
+    </script>
+    <h1>闹钟列表</h1>
+    <ul id="alarmlist"></ul>
+    <script>
+        function fetchAlarms() {
+            fetch('/api/get_alarm')
+            .then(response => response.json())
+            .then(data => {
+                const alarmlist = document.getElementById('alarmlist');
+                alarmlist.innerHTML = '';
+                data.forEach((alarm, index) => {
+                    const li = document.createElement('li');
+                    const date = new Date(alarm[0] * 1000);
+                    li.textContent = `闹钟: ${date.toLocaleString()}, 重复: ${alarm[1]}秒间隔`;
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.textContent = '删除';
+                    deleteBtn.addEventListener('click', () => {
+                        fetch(`/api/delete_alarm/${index}`, { method: 'DELETE' })
+                        .then(() => fetchAlarms());
+                    });
+                    li.appendChild(deleteBtn);
+                    alarmlist.appendChild(li);
+                });
+            });
+        }
+        
+        window.addEventListener('DOMContentLoaded', (event) => {
+            fetchAlarms();
+        });
+    </script>
+    <div>
+        <button onclick="location.href='/new_alarm';">新增闹钟</button>
+        <button onclick="location.href='/view_history';">查看历史数据</button>
+        <button onclick="location.href='/settings';">设置</button>
+        <button onclick="location.href='/main';">刷新页面</button>
+    </div>
+</body>
+</html>

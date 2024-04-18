@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>新增闹钟</title>
+</head>
+<body>
+    <h1>新增闹钟</h1>
+    <form id="alarmForm">
+        <label for="alarmTime">闹钟时间:</label>
+        <input type="datetime-local" id="alarmTime" name="alarmTime" required><br><br>
+        <label for="repeat">重复:</label>
+        <input type="checkbox" id="repeat" name="repeat"><br><br>
+        <label for="repeatInterval">重复间隔(秒):</label>
+        <input type="number" id="repeatInterval" name="repeatInterval" min="0" disabled><br><br>
+        <button type="submit">提交</button>
+    </form>
+    <button onclick="location.href='/main'">返回主页</button>
+    <script>
+        const repeat = document.getElementById('repeat');
+        const repeatInterval = document.getElementById('repeatInterval');
+        repeat.addEventListener('change', function() {
+            if (this.checked) {
+                repeatInterval.disabled = false;
+                repeatInterval.required = true;
+            } else {
+                repeatInterval.disabled = true;
+                repeatInterval.required = false;
+            }
+        });
+        const alarmForm = document.getElementById('alarmForm');
+        alarmForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const alarmTime = new Date(document.getElementById('alarmTime').value).getTime() / 1000;
+            const repeat = document.getElementById('repeat').checked;
+            const repeatInterval = parseInt(document.getElementById('repeatInterval').value);
+            if (!repeat || (repeat && repeatInterval > 0)) {
+                const ala = [alarmTime, repeat ? repeatInterval : 0];
+                fetch('/api/set_alarm', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(ala)
+                })
+                .then(response => {
+                    if (response.ok) {
+                        alert('闹钟设置成功');
+                        location.href = '/main';
+                    } else {
+                        alert('闹钟设置失败');
+                    }
+                });
+            } else {
+                alert('请输入重复间隔');
+            }
+        });
+    </script>
+</body>
+</html>
